@@ -20,6 +20,10 @@ docker-compose up -d --build
 ```
 
 ````
+php artisan make:job SendWelcomeEmail
+````
+
+````
 php artisan queue:table
 ````
 ```
