@@ -1,0 +1,79 @@
+version: "3.7"
+services:
+  app:
+    build:
+      args:
+        user: $USER
+        uid:  $IDUSER
+      context: ./.docker
+      dockerfile: Dockerfile
+    image: laravelapp
+    container_name: queue-app
+    restart: unless-stopped
+    working_dir: /var/www/
+    volumes:
+      - ./src:/var/www
+      - ./.docker/php/config.ini:/usr/local/etc/php/conf.d/config.ini
+    networks:
+      - netapp
+
+  db:
+    image: "mysql:latest"
+    container_name: queue-db
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+    volumes:
+      - ./db/mysql:/var/lib/mysql
+      - ./.docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+     - "3306:3306"
+    networks:
+      - netapp
+
+  mongodb:
+    image: "mongo:3.6"
+    container_name: queue-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./db/mongo:/data/db
+    networks:
+      - netapp
+
+  nginx:
+    image: nginx:1.17-alpine
+    container_name: queue-nginx
+    restart: unless-stopped
+    ports:
+      - 8000:80
+    volumes:
+      - ./src:/var/www
+      - ./.docker/nginx:/etc/nginx/conf.d
+    networks:
+      - netapp
+
+  redis:
+    image: "redis:2.8"
+    ports:
+     - "6379:6379"
+    volumes:
+     - ./db/redis:/data
+    networks:
+      - netapp
+  
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    container_name: queue-rabbitmq
+    ports:
+     - "15672:15672"
+     - "5672:5672"
+    volumes:
+      - ./db/rabbitmq:/var/lib/rabbitmq
+    networks:
+      - netapp
+    
+networks:
+  netapp:
+    driver: bridge
