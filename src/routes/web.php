@@ -15,7 +15,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     //(new \App\Jobs\SendWelcomeEmail())->handle();
-    \App\Jobs\SendWelcomeEmail::dispatch();
+    ##\App\Jobs\SendWelcomeEmail::dispatch();
+    //\App\Jobs\SendWelcomeEmail::dispatch()->delay(5);
+
+    foreach (range(1,100) as $i) {
+        \App\Jobs\SendWelcomeEmail::dispatch();
+    }
+    \App\Jobs\ProcessPayment::dispatch()->onQueue('payments');
 
     return view('welcome');
 });
