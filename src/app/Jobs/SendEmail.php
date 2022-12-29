@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -9,22 +10,12 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class SendWelcomeEmail implements ShouldQueue
+class SendEmail implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    /** a proprieda timeout refere-se a tempo máximo que consumidor pode
-     * levar para realizar o trabalho. há  duas forma para declarar:
-     * dentro classe ou via linha de comando
-     * public $timeout = 1;
-     * php artisan  queue:work --timeout=1
-     **/
-
-    #public $timeout = 10;
-
-    public int $tries = 1;
-    #public int $backoff= 2;
-
+    public int $tries = 10;
+    public int $maxExceptions = 2;
 
     /**
      * Create a new job instance.
@@ -33,7 +24,7 @@ class SendWelcomeEmail implements ShouldQueue
      */
     public function __construct()
     {
-        //
+
     }
 
     /**
@@ -44,15 +35,13 @@ class SendWelcomeEmail implements ShouldQueue
      */
     public function handle()
     {
-        throw new \Exception("Failed");
-        sleep(3);
-        info('Hello!');
+
+        throw new \Exception('failled');
+       return $this->release();
     }
 
-  /*
-    public function retryUntil()
+    public function failed($e)
     {
-        return now()->addMinute();
-    }*/
-
+        info('failed aqui');
+    }
 }
